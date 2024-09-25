@@ -1,23 +1,23 @@
-package ru.tbank.controllers;
+package ru.tbank;
 
 import org.springframework.stereotype.Component;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.ArrayList;
 
 @Component
 public class GenericRepository<T> {
-    private final ConcurrentHashMap<String, T> storage = new ConcurrentHashMap<>();
-    public T findById(String id) {
+    private final ConcurrentHashMap<Integer, T> storage = new ConcurrentHashMap<>();
+
+    public T findById(int id) {
         return storage.get(id);
     }
 
-    public void save(String id, T entity) {
+    public void save(int id, T entity) {
         storage.put(id, entity);
     }
 
-    public void delete(String id) {
+    public void delete(int id) {
         storage.remove(id);
     }
 

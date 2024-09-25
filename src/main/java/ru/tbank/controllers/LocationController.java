@@ -2,6 +2,7 @@ package ru.tbank.controllers;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import ru.tbank.GenericRepository;
 import ru.tbank.logging.LogExecutionTime;
 import ru.tbank.entities.Location;
 
@@ -12,6 +13,11 @@ import java.util.List;
 public class LocationController {
     private final GenericRepository<Location> locationRepository = new GenericRepository<>();
 
+    private static int counter = 1;
+
+    public int genId() {
+        return counter++;
+    }
 
     public LocationController() {
         initializeData();
@@ -23,11 +29,13 @@ public class LocationController {
 
         String locationsUrl = "https://kudago.com/public-api/v1.4/locations/";
         Location[] locations = restTemplate.getForObject(locationsUrl, Location[].class);
+        assert locations != null;
         for (Location location : locations) {
-            locationRepository.save(location.getSlug(), location);
+            int Id = genId();
+            location.setId(Id);
+            locationRepository.save(Id, location);
         }
     }
-
 
     @LogExecutionTime
     @GetMapping
@@ -37,25 +45,28 @@ public class LocationController {
 
     @LogExecutionTime
     @GetMapping("/{id}")
-    public Location getLocationById(@PathVariable String id) {
+    public Location getLocationById(@PathVariable int id) {
         return locationRepository.findById(id);
     }
 
     @LogExecutionTime
     @PostMapping
     public void createLocation(@RequestBody Location location) {
-        locationRepository.save(location.getSlug(), location);
+        int Id = genId();
+        location.setId(Id);
+        locationRepository.save(Id, location);
     }
 
     @LogExecutionTime
     @PutMapping("/{id}")
-    public void updateLocation(@PathVariable String id, @RequestBody Location location) {
+    public void updateLocation(@PathVariable int id, @RequestBody Location location) {
+        location.setId(id);
         locationRepository.save(id, location);
     }
 
     @LogExecutionTime
     @DeleteMapping("/{id}")
-    public void deleteLocation(@PathVariable String id) {
+    public void deleteLocation(@PathVariable int id) {
         locationRepository.delete(id);
     }
 }
