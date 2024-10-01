@@ -1,72 +1,59 @@
 package ru.tbank.controllers;
 
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import ru.tbank.GenericRepository;
-import ru.tbank.logging.LogExecutionTime;
+import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.tbank.entities.Location;
-
-import java.util.List;
+import ru.tbank.logging.LogExecutionTime;
+import ru.tbank.services.LocationService;
 
 @RestController
-@RequestMapping("/api/v1/locations")
+@RequestMapping({"/api/v1/locations"})
 public class LocationController {
-    private final GenericRepository<Location> locationRepository = new GenericRepository<>();
-
-    private static int counter = 1;
-
-    public int genId() {
-        return counter++;
-    }
-
-    public LocationController() {
-        initializeData();
-    }
-
-    @LogExecutionTime
-    private void initializeData() {
-        RestTemplate restTemplate = new RestTemplate();
-
-        String locationsUrl = "https://kudago.com/public-api/v1.4/locations/";
-        Location[] locations = restTemplate.getForObject(locationsUrl, Location[].class);
-        assert locations != null;
-        for (Location location : locations) {
-            int Id = genId();
-            location.setId(Id);
-            locationRepository.save(Id, location);
-        }
-    }
+    private static final Logger log = LoggerFactory.getLogger(LocationController.class);
+    @Autowired
+    private final LocationService locationService;
 
     @LogExecutionTime
     @GetMapping
-    public List<Location> getAllLocations() {
-        return List.copyOf(locationRepository.findAll());
+    public Collection<Location> getAllLocations() {
+        return this.locationService.getAllLocations();
     }
 
     @LogExecutionTime
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}"})
     public Location getLocationById(@PathVariable int id) {
-        return locationRepository.findById(id);
+        return this.locationService.getLocationById(id);
     }
 
     @LogExecutionTime
     @PostMapping
     public void createLocation(@RequestBody Location location) {
-        int Id = genId();
-        location.setId(Id);
-        locationRepository.save(Id, location);
+        this.locationService.createLocation(location);
     }
 
     @LogExecutionTime
-    @PutMapping("/{id}")
+    @PutMapping({"/{id}"})
     public void updateLocation(@PathVariable int id, @RequestBody Location location) {
-        location.setId(id);
-        locationRepository.save(id, location);
+        this.locationService.updateLocation(id, location);
     }
 
     @LogExecutionTime
-    @DeleteMapping("/{id}")
+    @DeleteMapping({"/{id}"})
     public void deleteLocation(@PathVariable int id) {
-        locationRepository.delete(id);
+        this.locationService.deleteLocation(id);
+    }
+
+    public LocationController(LocationService locationService) {
+        this.locationService = locationService;
     }
 }

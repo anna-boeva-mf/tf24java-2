@@ -1,90 +1,28 @@
 package ru.tbank.clients;
 
-import okhttp3.*;
-import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import ru.tbank.entities.Location;
+import ru.tbank.logging.LogExecutionTime;
 
-import java.io.IOException;
-
+@Component
 public class LocationApiClient {
-    private static final String BASE_URL = "http://localhost:8080/api/v1";
+    private static final Logger log = LoggerFactory.getLogger(LocationApiClient.class);
+    @Value("${locations.url}")
+    private String LOCATION_URL;
+    private final RestTemplate restTemplate;
 
-    private final OkHttpClient client;
-
-    public LocationApiClient() {
-        this.client = new OkHttpClient();
+    @LogExecutionTime
+    public Location[] initializeData() {
+        log.info("Загрузка локаций с KudaGo");
+        Location[] locations = (Location[])this.restTemplate.getForObject(this.LOCATION_URL, Location[].class, new Object[0]);
+        return locations;
     }
 
-    public String getAllLocations() throws IOException {
-        Request request = new Request.Builder()
-                .url(BASE_URL + "/locations")
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
-            return response.body().string();
-        }
-    }
-
-    public String getLocationById(int id) throws IOException {
-        Request request = new Request.Builder()
-                .url(BASE_URL + "/locations/" + id)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
-            return response.body().string();
-        }
-    }
-
-    public String createLocation(Location location) throws IOException {
-        MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, new JSONObject(location).toString());
-
-        Request request = new Request.Builder()
-                .url(BASE_URL + "/locations")
-                .post(body)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
-            return response.body().string();
-        }
-    }
-
-    public String updateLocation(int id, Location location) throws IOException {
-        MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, new JSONObject(location).toString());
-
-        Request request = new Request.Builder()
-                .url(BASE_URL + "/locations/" + id)
-                .put(body)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
-            return response.body().string();
-        }
-    }
-
-    public void deleteLocation(int id) throws IOException {
-        Request request = new Request.Builder()
-                .url(BASE_URL + "/locations/" + id)
-                .delete()
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                throw new IOException("Unexpected code " + response);
-            }
-        }
+    public LocationApiClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 }

@@ -1,72 +1,59 @@
 package ru.tbank.controllers;
 
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import ru.tbank.GenericRepository;
-import ru.tbank.logging.LogExecutionTime;
+import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.tbank.entities.Category;
-
-import java.util.List;
+import ru.tbank.logging.LogExecutionTime;
+import ru.tbank.services.CategoryService;
 
 @RestController
-@RequestMapping("/api/v1/places/categories")
+@RequestMapping({"/api/v1/places/categories"})
+@LogExecutionTime
 public class CategoryController {
-    private final GenericRepository<Category> categoryRepository = new GenericRepository<>();
+    private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
+    @Autowired
+    private final CategoryService categoryService;
 
-    private static int counter = 1;
-
-    public int genId() {
-        return counter++;
-    }
-
-    public CategoryController() {
-        initializeData();
-    }
-
-    @LogExecutionTime
-    private void initializeData() {
-        RestTemplate restTemplate = new RestTemplate();
-
-        String categoriesUrl = "https://kudago.com/public-api/v1.4/place-categories/";
-        Category[] categories = restTemplate.getForObject(categoriesUrl, Category[].class);
-        assert categories != null;
-        for (Category category : categories) {
-            int Id = genId();
-            category.setId(Id);
-            categoryRepository.save(Id, category);
-        }
-    }
-
-    @LogExecutionTime
     @GetMapping
-    public List<Category> getAllCategories() {
-        return List.copyOf(categoryRepository.findAll());
+    public Collection<Category> getAllCategories() {
+        return this.categoryService.getAllCategories();
     }
 
     @LogExecutionTime
-    @GetMapping("/{id}")
+    @GetMapping({"/{id}"})
     public Category getCategoryById(@PathVariable int id) {
-        return categoryRepository.findById(id);
+        return this.categoryService.getCategoryById(id);
     }
 
     @LogExecutionTime
     @PostMapping
     public void createCategory(@RequestBody Category category) {
-        int Id = genId();
-        category.setId(Id);
-        categoryRepository.save(Id, category);
+        this.categoryService.createCategory(category);
     }
 
     @LogExecutionTime
-    @PutMapping("/{id}")
+    @PutMapping({"/{id}"})
     public void updateCategory(@PathVariable int id, @RequestBody Category category) {
-        category.setId(id);
-        categoryRepository.save(id, category);
+        this.categoryService.updateCategory(id, category);
     }
 
     @LogExecutionTime
-    @DeleteMapping("/{id}")
+    @DeleteMapping({"/{id}"})
     public void deleteCategory(@PathVariable int id) {
-        categoryRepository.delete(id);
+        this.categoryService.deleteCategory(id);
+    }
+
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 }

@@ -1,27 +1,35 @@
 package ru.tbank;
 
-import org.springframework.stereotype.Component;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.List;
-import java.util.ArrayList;
+import org.springframework.stereotype.Component;
 
 @Component
 public class GenericRepository<T> {
-    private final ConcurrentHashMap<Integer, T> storage = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, T> storage = new ConcurrentHashMap();
+    private static int counter = 1;
 
-    public T findById(int id) {
-        return storage.get(id);
+    public GenericRepository() {
     }
 
-    public void save(int id, T entity) {
-        storage.put(id, entity);
+    public int genId() {
+        return counter++;
     }
 
-    public void delete(int id) {
-        storage.remove(id);
+    public T findById(Integer id) {
+        return this.storage.get(id);
     }
 
-    public List<T> findAll() {
-        return new ArrayList<>(storage.values());
+    public int save(Integer id, T entity) {
+        this.storage.put(id, entity);
+        return id;
+    }
+
+    public void delete(Integer id) {
+        this.storage.remove(id);
+    }
+
+    public Collection<T> findAll() {
+        return this.storage.values();
     }
 }
