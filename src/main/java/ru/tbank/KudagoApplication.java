@@ -9,9 +9,6 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 @EnableAspectJAutoProxy
 public class KudagoApplication {
-    public KudagoApplication() {
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(KudagoApplication.class, args);
     }

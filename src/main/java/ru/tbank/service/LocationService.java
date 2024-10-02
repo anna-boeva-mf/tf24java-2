@@ -1,16 +1,20 @@
-package ru.tbank.services;
+package ru.tbank.service;
 
 import java.util.Collection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import ru.tbank.GenericRepository;
-import ru.tbank.entities.Location;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import ru.tbank.entities.Location;
+import ru.tbank.repository.LocationRepository;
+
+@Slf4j
 @Service
 public class LocationService {
-    private static final Logger log = LoggerFactory.getLogger(LocationService.class);
-    private final GenericRepository<Location> locationRepository;
+    private final LocationRepository locationRepository;
+
+    public LocationService(LocationRepository locationRepository) {
+        this.locationRepository = locationRepository;
+    }
 
     public Collection<Location> getAllLocations() {
         log.info("Получение всех локаций");
@@ -18,25 +22,25 @@ public class LocationService {
     }
 
     public Location getLocationById(int id) {
-        return (Location)this.locationRepository.findById(id);
+        log.info("Получение локации по ID");
+        return this.locationRepository.findById(id);
     }
 
     public int createLocation(Location location) {
+        log.info("Создание новой локации");
         int id = this.locationRepository.genId();
         location.setId(id);
         return this.locationRepository.save(id, location);
     }
 
     public void updateLocation(int id, Location location) {
+        log.info("Обновление локации");
         location.setId(id);
         this.locationRepository.save(id, location);
     }
 
     public void deleteLocation(int id) {
+        log.info("Удаление локации");
         this.locationRepository.delete(id);
-    }
-
-    public LocationService(GenericRepository<Location> locationRepository) {
-        this.locationRepository = locationRepository;
     }
 }

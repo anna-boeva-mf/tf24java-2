@@ -21,7 +21,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
     implementation 'org.springframework:spring-web'
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation files('libs/logging-starter-1.0.jar')
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'ch.qos.logback:logback-classic:1.2.0'
 }
 
 test {

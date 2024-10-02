@@ -1,8 +1,9 @@
 package ru.tbank.controllers;
 
 import java.util.Collection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tbank.entities.Category;
 import ru.tbank.logging.LogExecutionTime;
-import ru.tbank.services.CategoryService;
+import ru.tbank.service.CategoryService;
 
+@Slf4j
 @RestController
 @RequestMapping({"/api/v1/places/categories"})
 @LogExecutionTime
+@AllArgsConstructor
 public class CategoryController {
-    private static final Logger log = LoggerFactory.getLogger(CategoryController.class);
     @Autowired
     private final CategoryService categoryService;
 
@@ -51,9 +53,5 @@ public class CategoryController {
     @DeleteMapping({"/{id}"})
     public void deleteCategory(@PathVariable int id) {
         this.categoryService.deleteCategory(id);
-    }
-
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
     }
 }
