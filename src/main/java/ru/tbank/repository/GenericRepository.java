@@ -10,12 +10,12 @@ import ru.tbank.exception.EntityNotFoundException;
 @Slf4j
 @Component
 public class GenericRepository<ID, T> {
-    private ConcurrentHashMap<ID, T> storage = new ConcurrentHashMap();
+    private final ConcurrentHashMap<ID, T> storage = new ConcurrentHashMap<>();
 
     public T findById(ID id) {
         T entity = this.storage.get(id);
         if (entity == null) {
-            log.info("Сущность с ID=" + id + " не найдена");
+            log.info("Сущность с ID={} не найдена", id);
             throw new EntityNotFoundException("Сущность с ID=" + id + " не найдена");
         }
         return entity;
@@ -29,7 +29,7 @@ public class GenericRepository<ID, T> {
     public void delete(ID id) {
         T entity = this.storage.remove(id);
         if (entity == null) {
-            log.warn("Сущность с ID=" + id + " не найдена");
+            log.warn("Сущность с ID={} не найдена", id);
         }
     }
 

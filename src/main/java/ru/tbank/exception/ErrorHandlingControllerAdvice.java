@@ -13,14 +13,12 @@ public class ErrorHandlingControllerAdvice {
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
         log.error("Ошибка: {}", ex.getMessage(), ex);
-        ResponseEntity<String> response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(ex.getMessage());
-        return response;
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(ex.getMessage());
     }
 
     @ExceptionHandler(value = EntityNotFoundException.class)
     public ResponseEntity<String> handleCategoryNotFoundException(EntityNotFoundException ex) {
         log.error(ex.getMessage(), ex);
-        ResponseEntity<String> response = ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(ex.getMessage());
-        return response;
+        return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(ex.getMessage());
     }
 }
