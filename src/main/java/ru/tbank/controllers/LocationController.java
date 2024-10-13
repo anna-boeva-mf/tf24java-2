@@ -28,26 +28,26 @@ public class LocationController {
 
     @GetMapping
     public Collection<Location> getAllLocations() {
-        return this.locationService.getAllLocations();
+        return locationService.getAllLocations();
     }
 
     @GetMapping({"/{id}"})
     public Location getLocationById(@PathVariable int id) {
-        return this.locationService.getLocationById(id);
+        return locationService.getLocationById(id);
     }
 
     @PostMapping
     public void createLocation(@RequestBody Location location) {
-        this.locationService.createLocation(location);
+        locationService.createLocation(location);
     }
 
     @PutMapping({"/{id}"})
     public void updateLocation(@PathVariable int id, @RequestBody Location location) {
-        this.locationService.updateLocation(id, location);
+        locationService.updateLocation(id, location);
     }
 
     @DeleteMapping({"/{id}"})
     public void deleteLocation(@PathVariable int id) {
-        this.locationService.deleteLocation(id);
+        locationService.deleteLocation(id);
     }
 }
