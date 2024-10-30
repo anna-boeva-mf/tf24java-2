@@ -10,4 +10,5 @@ public class CategoryRepository extends GenericRepository<Integer, Category> {
     public int genId() {
         return counter++;
     }
+
 }

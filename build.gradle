@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.5.4'
     id 'io.spring.dependency-management' version '1.1.6'
+    id 'jacoco'
 }
 
 group = 'ru.tbank'
@@ -11,7 +12,7 @@ repositories {
     mavenCentral()
 }
 
-tasks{
+tasks {
     compileJava.options.encoding = 'UTF-8'
     compileTestJava.options.encoding = 'UTF-8'
 }
@@ -21,23 +22,66 @@ test {
 
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
-    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.24.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-validation:3.3.4'
+    implementation 'org.springframework:spring-webmvc:5.3.10'
+
+    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.24.0'
     compileOnly 'org.projectlombok:lombok:1.18.24'
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
-    implementation 'org.springframework:spring-web'
     implementation files('libs/logging-starter-1.0.jar')
     implementation 'org.slf4j:slf4j-api:1.7.36'
-    implementation 'ch.qos.logback:logback-classic:1.2.0'
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'org.mockito:mockito-core:3.12.4'
-    testImplementation 'org.mockito:mockito-junit-jupiter:3.12.4'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.8.2'
+
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.0'
+    testImplementation 'junit:junit:4.13.1'
+    implementation 'io.rest-assured:rest-assured:5.5.0'
+    implementation 'io.rest-assured:xml-path:5.5.0'
+    implementation 'io.rest-assured:json-path:5.5.0'
+
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.wiremock:wiremock-standalone:3.6.0'
+    testImplementation "org.wiremock.integrations.testcontainers:wiremock-testcontainers-module:1.0-alpha-13"
+
+
+
 
 }
+
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/entities/**']) // исключить DTO
+        })
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.70
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
