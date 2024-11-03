@@ -9,7 +9,7 @@ import ru.tbank.exception.EntityNotFoundException;
 
 @Slf4j
 @Component
-public class GenericRepository<ID, T> {
+public class GenericRepositoryOld<ID, T> {
     private final ConcurrentHashMap<ID, T> storage = new ConcurrentHashMap<>();
 
     public T findById(ID id) {

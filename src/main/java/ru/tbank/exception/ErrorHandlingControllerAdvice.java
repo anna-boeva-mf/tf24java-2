@@ -21,4 +21,9 @@ public class ErrorHandlingControllerAdvice {
         log.error(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(ex.getMessage());
     }
+
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
 }

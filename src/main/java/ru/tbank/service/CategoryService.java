@@ -1,46 +1,68 @@
 package ru.tbank.service;
 
-import java.util.Collection;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.tbank.repository.CategoryRepository;
+import ru.tbank.db_repository.CategoryRepository;
 import ru.tbank.entities.Category;
 
 @Slf4j
 @Service
 public class CategoryService {
-    private final CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    @Value("${spring.datasource.username}")
+    private String currentUser;
 
-    public Collection<Category> getAllCategories() {
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    public List<Category> getAllCategories() {
         log.info("Получение всех категорий");
         return this.categoryRepository.findAll();
     }
 
-    public Category getCategoryById(int id) {
+    public Category getCategoryById(Long id) {
         log.info("Получение категории по ID");
-        return this.categoryRepository.findById(id);
+        return this.categoryRepository.findById(id).orElse(null);
     }
 
-    public int createCategory(Category category) {
+    public Category createCategory(Category category) {
         log.info("Добавление новой категории");
-        int id = this.categoryRepository.genId();
-        category.setId(id);
-        return this.categoryRepository.save(id, category);
+        if (categoryRepository.existsByName(category.getName())) {
+            log.warn("Category already exists");
+            return categoryRepository.findByName(category.getName());
+        } else {
+            category.setNaviDate(LocalDateTime.now());
+            category.setNaviUser(currentUser);
+            return categoryRepository.save(category);
+        }
     }
 
-    public void updateCategory(int id, Category category) {
+    public Category updateCategory(Long id, Category categoryDetails) {
         log.info("Обновление категории");
-        category.setId(id);
-        this.categoryRepository.save(id, category);
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+        if (optionalCategory.isPresent()) {
+            Category existingCategory = optionalCategory.get();
+            existingCategory.setNaviDate(LocalDateTime.now());
+            existingCategory.setNaviUser(currentUser);
+            existingCategory.setSlug(categoryDetails.getSlug());
+            existingCategory.setName(categoryDetails.getName());
+            return categoryRepository.save(existingCategory);
+        }
+        return null;
     }
 
-    public void deleteCategory(int id) {
+    public boolean deleteCategory(Long id) {
         log.info("Удаление категории");
-        this.categoryRepository.delete(id);
+        if (categoryRepository.existsById(id)) {
+            categoryRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

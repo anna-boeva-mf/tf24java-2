@@ -39,11 +39,15 @@ dependencies {
     implementation 'io.rest-assured:xml-path:5.5.0'
     implementation 'io.rest-assured:json-path:5.5.0'
 
-
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'org.wiremock:wiremock-standalone:3.6.0'
     testImplementation 'org.wiremock.integrations.testcontainers:wiremock-testcontainers-module:1.0-alpha-13'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.liquibase:liquibase-core'
+    runtimeOnly 'org.liquibase.ext:liquibase-hibernate5'
 }
 jacoco {
     toolVersion = "0.8.7"
