@@ -33,6 +33,11 @@ public class LocationService {
         return locationRepository.findById(id).orElse(null);
     }
 
+    public Location getLocationWithEvents(Long id) {
+        log.info("Получение локации с событиями");
+        return locationRepository.findByIdWithEvents(id);
+    }
+
     public Location createLocation(Location location) {
         log.info("Создание локации");
         if (locationRepository.existsByName(location.getName())) {
@@ -47,17 +52,18 @@ public class LocationService {
 
     public Location updateLocation(Long id, Location locationDetails) {
         log.info("Обновление локации");
-        Optional<Location> optionalLocation = locationRepository.findById(id);
-        if (optionalLocation.isPresent()) {
-            Location existingLocation = optionalLocation.get();
+        Location existingLocation = locationRepository.findByIdWithEvents(id);
+        if (existingLocation == null) {
+            log.warn("Локация не существует");
+            return null;
+        } else {
             existingLocation.setNaviDate(LocalDateTime.now());
             existingLocation.setNaviUser(currentUser);
             existingLocation.setSlug(locationDetails.getSlug());
             existingLocation.setName(locationDetails.getName());
-            existingLocation.setEvents(locationDetails.getEvents()); // Если необходимо обновить события
+            System.out.println(locationDetails.getEvents());
             return locationRepository.save(existingLocation);
         }
-        return null;
     }
 
     public boolean deleteLocation(Long id) {

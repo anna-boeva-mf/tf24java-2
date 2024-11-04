@@ -1,6 +1,8 @@
 package ru.tbank.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
+import ru.tbank.dto.EventDTO;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,7 +33,14 @@ public class Location {
     @Column(name = "navi_user", length = 100, columnDefinition = "VARCHAR(100) default CURRENT_USER")
     private String naviUser;
 
-    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<Event> events;
+
+    public Location(Long locationId, String name, String slug) {
+        this.locationId = locationId;
+        this.name = name;
+        this.slug = slug;
+    }
 }
 

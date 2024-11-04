@@ -10,14 +10,12 @@
             <column name="location_id" type="bigserial">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(100)">
+            <column name="name" type="varchar(100)"/>
+            <column name="slug" type="varchar(100)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="slug" type="varchar(10)"/>
-            <column name="navi_date" type="timestamp">
-            </column>
-            <column name="navi_user" type="varchar(100)">
-            </column>
+            <column name="navi_date" type="timestamp"/>
+            <column name="navi_user" type="varchar(100)"/>
         </createTable>
         <!-- Установка значений по умолчанию через SQL -->
         <sql>
@@ -31,20 +29,19 @@
             <column name="event_id" type="bigserial">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(100)">
+            <column name="name" type="varchar(4000)"/>
+            <column name="slug" type="varchar(500)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="slug" type="varchar(10)"/>
             <column name="site_url" type="varchar(1000)"/>
             <column name="start_date" type="timestamp"/>
             <column name="end_date" type="timestamp"/>
             <column name="location_id" type="bigint">
-                <constraints foreignKeyName="fk_events_location" references="events.locations(location_id)"/>
+                <constraints nullable="false" foreignKeyName="fk_events_location"
+                             references="events.locations(location_id)"/>
             </column>
-            <column name="navi_date" type="date">
-            </column>
-            <column name="navi_user" type="varchar(100)">
-            </column>
+            <column name="navi_date" type="TIMESTAMP"/>
+            <column name="navi_user" type="varchar(100)"/>
         </createTable>
         <sql>
             ALTER TABLE events.events ALTER COLUMN navi_date SET DEFAULT CURRENT_TIMESTAMP;
@@ -57,14 +54,12 @@
             <column name="category_id" type="BIGSERIAL">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="name" type="VARCHAR(100)">
+            <column name="name" type="VARCHAR(100)"/>
+            <column name="slug" type="VARCHAR(100)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="slug" type="VARCHAR(100)"/>
-            <column name="navi_date" type="TIMESTAMP">
-            </column>
-            <column name="navi_user" type="VARCHAR(100)">
-            </column>
+            <column name="navi_date" type="TIMESTAMP"/>
+            <column name="navi_user" type="VARCHAR(100)"/>
         </createTable>
         <sql>
             ALTER TABLE events.place_categories ALTER COLUMN navi_date SET DEFAULT CURRENT_TIMESTAMP;

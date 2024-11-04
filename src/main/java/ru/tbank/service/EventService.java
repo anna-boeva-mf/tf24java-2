@@ -7,12 +7,13 @@ import ru.tbank.db_repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import ru.tbank.dto.EventDTO;
 import ru.tbank.entities.Event;
-import ru.tbank.entities.Location;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,9 +21,6 @@ public class EventService {
 
     @Autowired
     private EventRepository eventRepository;
-
-    @Autowired
-    private LocationRepository locationRepository;
 
     public List<Event> getAllEvents() {
         log.info("Получение всех событий");
@@ -66,17 +64,17 @@ public class EventService {
         return false;
     }
 
-    public List<Event> searchEvents(String name, Long locationId, LocalDateTime fromDate, LocalDateTime toDate) {
+    public List<EventDTO> searchEvents(String name, Long locationId, LocalDateTime fromDate, LocalDateTime toDate) {
         log.info("Поиск событий по фильтрам");
         Specification<Event> spec = Specification.where(EventSpecification.findByName(name))
                 .and(EventSpecification.findByLocation(locationId))
                 .and(EventSpecification.findByDateRange(fromDate, toDate));
-        return eventRepository.findAll(spec);
+        List<Event> events = eventRepository.findAll(spec);
+        List<EventDTO> eventsDTO = events.stream()
+                .map(event -> new EventDTO(event, true))
+                .collect(Collectors.toList());
+        return eventsDTO;
     }
 
-    public Location getLocationWithEvents(Long id) {
-        log.info("Получение локации с событиями");
-        return locationRepository.findByIdWithEvents(id);
-    }
 }
 
