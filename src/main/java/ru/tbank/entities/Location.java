@@ -1,10 +1,20 @@
 package ru.tbank.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.*;
-import ru.tbank.dto.EventDTO;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Column;
+import javax.persistence.GenerationType;
+import javax.persistence.CascadeType;
+import javax.persistence.OneToMany;
+import javax.persistence.FetchType;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,8 +47,7 @@ public class Location {
     @JsonManagedReference
     private List<Event> events;
 
-    public Location(Long locationId, String name, String slug) {
-        this.locationId = locationId;
+    public Location(String name, String slug) {
         this.name = name;
         this.slug = slug;
     }

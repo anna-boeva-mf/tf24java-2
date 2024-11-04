@@ -51,7 +51,7 @@ public class LocationApiClientIntegrationTest {
 
     @Test
     void testGetAllLocations() {
-        Location location1 = new Location("main", "MAIN LOCATION");
+        Location location1 = new Location("MAIN LOCATION", "main");
         List<Location> locations = List.of(location1);
         stubFor(get(urlEqualTo("/"))
                 .willReturn(aResponse()

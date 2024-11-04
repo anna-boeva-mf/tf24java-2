@@ -1,19 +1,48 @@
 package ru.tbank.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import ru.tbank.db_repository.CategoryRepository;
+import ru.tbank.dto.EventDTO;
 import ru.tbank.entities.Category;
-import ru.tbank.exception.EntityNotFoundException;
+import ru.tbank.entities.Event;
 import ru.tbank.service.CategoryService;
 
+import org.springframework.http.MediaType;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -25,113 +54,132 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
-@WebMvcTest({CategoryController.class})
-public class CategoryControllerTest {
 
+@AutoConfigureMockMvc
+@Testcontainers
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class CategoryControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Mock
     private CategoryService categoryService;
+
+    @InjectMocks
+    private CategoryController categoryController;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    public void testGetCategories_FineResult() throws Exception {
+    @Container
+    public static PostgreSQLContainer<?> pgDB = new PostgreSQLContainer<>("postgres:13")
+            .withDatabaseName("kudago_test")
+            .withUsername("pguser_test")
+            .withPassword("pgpwd_test");
 
-        Category category1 = new Category("main", "MAIN CATEGORY");
-        Category category2 = new Category("std", "STADIUM");
-        Category category3 = new Category("arn", "ARENA");
-        List<Category> t = List.of(category1, category2, category3);
-        when(categoryService.getAllCategories()).thenReturn(t);
+    @DynamicPropertySource
+    static void setDynamicProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", pgDB::getJdbcUrl);
+        registry.add("spring.datasource.username", pgDB::getUsername);
+        registry.add("spring.datasource.password", pgDB::getPassword);
+    }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"airports", "amusement", "animal-shelters", "photo-places", "dogs", "cats", "dance-studio"})
+    public void testGetAllCategories_LoadedSlugsInInitializer(String expectedSlug) throws Exception {
         mockMvc.perform(get("/api/v1/places/categories"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(category1.getId()))
-                .andExpect(jsonPath("$[1].slug").value(category2.getSlug()))
-                .andExpect(jsonPath("$[2].name").value(category3.getName()))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().json(objectMapper.writeValueAsString(t)))
+                .andExpect(jsonPath("$[*].slug").value(hasItem(expectedSlug)))
                 .andDo(print());
     }
 
     @Test
-    public void testGetCategory_FineResult() throws Exception {
-
-        Category category1 = new Category(1,"main", "MAIN CATEGORY");
-        when(categoryService.getCategoryById(1)).thenReturn(category1);
-
+    public void testGetCategoryById_LoadedByInitializer() throws Exception {
         mockMvc.perform(get("/api/v1/places/categories/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(category1.getId()))
-                .andExpect(jsonPath("$.slug").value(category1.getSlug()))
-                .andExpect(jsonPath("$.name").value(category1.getName()))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.naviUser").value("Initializer"))
                 .andDo(print());
     }
 
     @Test
-    public void testAddCategory_FineResult() throws Exception {
-        Category category1 = new Category("main", "MAIN CATEGORY");
-        when(categoryService.createCategory(category1)).thenReturn(1);
+    public void testAddCategory_WasCreated() throws Exception {
+        MvcResult beforResult = mockMvc.perform(get("/api/v1/places/categories"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        //       String jsonBeforResult = new String(beforResult.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
+        String jsonBeforResult = new String(beforResult.getResponse().getContentAsByteArray());
+        int beforResultCount = objectMapper.readValue(jsonBeforResult, new TypeReference<List<Category>>() {
+        }).size();
 
         mockMvc.perform(post("/api/v1/places/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"slug\": \"main\", \"name\": \"MAIN CATEGORY\"}"))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andDo(print());
+
+        MvcResult afterResult = mockMvc.perform(get("/api/v1/places/categories"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        String jsonAfterResult = new String(afterResult.getResponse().getContentAsByteArray());
+        int afterResultCount = objectMapper.readValue(jsonAfterResult, new TypeReference<List<Category>>() {
+        }).size();
+
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(beforResultCount + 1, afterResultCount, "Количество категорий увеличилось"),
+                () -> Assertions.assertTrue(categoryRepository.existsBySlug("main"), "Новая категория добавилась"),
+                () -> Assertions.assertEquals(afterResultCount, categoryRepository.findBySlug("main").getCategoryId(), "ИД новой категории"),
+                () -> Assertions.assertEquals("MAIN CATEGORY", categoryRepository.findBySlug("main").getName(), "Наименование новой категории"));
     }
 
     @Test
-    public void testDeleteCategory_FineResult() throws Exception {
-        Category category1 = new Category(1,"main", "MAIN CATEGORY");
-        categoryService.createCategory(category1);
-
-        mockMvc.perform(delete("/api/v1/places/categories/1"))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    public void testDeleteCategory_WithNoEntity() throws Exception {
-        Category category1 = new Category(1,"main", "MAIN CATEGORY");
-        categoryService.createCategory(category1);
-
-        mockMvc.perform(delete("/api/v1/places/categories/8888888"))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
-    @Test
-    public void testUpdateCategory_FineResult() throws Exception {
-        Category category1 = new Category("main", "MAIN CATEGORY");
-        categoryService.createCategory(category1);
-
-        mockMvc.perform(put("/api/v1/places/categories/1")
+    public void testUpdateCategory_WasUpdated() throws Exception {
+        mockMvc.perform(post("/api/v1/places/categories")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"slug\": \"main\", \"name\": \"MAIN CATEGORY\"}"))
+                .andExpect(status().isCreated())
+                .andDo(print());
+        Category categoryBefore = categoryRepository.findBySlug("main");
+        Long categoryId = categoryBefore.getCategoryId();
+
+        mockMvc.perform(put("/api/v1/places/categories/" + categoryId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"slug\": \"std\", \"name\": \"STADIUM\"}"))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        Category categoryAfter = categoryRepository.findBySlug("std");
+        Assertions.assertAll(
+                () -> Assertions.assertEquals(categoryId, categoryAfter.getCategoryId(), "ИД обновленной категории"),
+                () -> Assertions.assertEquals("STADIUM", categoryAfter.getName(), "Наименование обновленной категории"));
     }
 
     @Test
-    public void testGetCategories_BadResult_WrongPath() throws Exception {
-        List<Category> t = null;
-        when(categoryService.getAllCategories()).thenReturn(t);
+    public void testDeleteCategory_WasDeleted() throws Exception {
+        mockMvc.perform(post("/api/v1/places/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"slug\": \"main\", \"name\": \"MAIN CATEGORY\"}"))
+                .andExpect(status().isCreated())
+                .andDo(print());
+        Category categoryBefore = categoryRepository.findBySlug("main");
+        Long categoryId = categoryBefore.getCategoryId();
 
-        mockMvc.perform(get("/api/v1/places/categoriesSSSSSS"))
+        mockMvc.perform(delete("/api/v1/places/categories/" + categoryId))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+
+        mockMvc.perform(get("/api/v1/places/categories/" + categoryId))
                 .andExpect(status().isNotFound())
                 .andDo(print());
-    }
 
-    @Test
-    public void testGetCategory_BadResult_DoesntExist() throws Exception {
+        Category categoryAfterDeleting = categoryRepository.findBySlug("main");
 
-        when(categoryService.getCategoryById(111)).thenThrow(new EntityNotFoundException("Сущность с ID=111 не найдена"));
-     //   when(categoryService.getCategoryById(111)).thenThrow(new Exception("Сущность с ID=111 не найдена"));
-
-        mockMvc.perform(get("/api/v1/places/categories/111"))
-                .andExpect(status().isNotFound())
-                .andDo(print());
+        Assertions.assertTrue(categoryAfterDeleting == null);
     }
 }

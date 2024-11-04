@@ -26,6 +26,10 @@ public class LocationService {
     @Autowired
     private LocationRepository locationRepository;
 
+    public LocationService(LocationRepository locationRepository) {
+        this.locationRepository = locationRepository;
+    }
+
 
     public List<LocationDTO> getAllLocations() {
         log.info("Получение всех локаций");

@@ -17,7 +17,7 @@ public class LocationDTO {
     private String slug;
     private List<EventDTO> events;
 
-    public LocationDTO (Location location, boolean includeEvents){
+    public LocationDTO(Location location, boolean includeEvents) {
         this.locationId = location.getLocationId();
         this.name = location.getName();
         this.slug = location.getSlug();
@@ -28,7 +28,6 @@ public class LocationDTO {
             this.events = eventsDTO;
         }
     }
-
 
 
 }

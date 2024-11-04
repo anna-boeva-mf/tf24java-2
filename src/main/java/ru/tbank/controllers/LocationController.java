@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.tbank.dto.EventDTO;
 import ru.tbank.dto.LocationDTO;
 import ru.tbank.entities.Location;
 import ru.tbank.logging.LogExecutionTime;

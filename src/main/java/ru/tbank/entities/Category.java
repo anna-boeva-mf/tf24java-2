@@ -36,5 +36,17 @@ public class Category {
     private LocalDateTime naviDate;
 
     @Column(name = "navi_user", length = 100, columnDefinition = "VARCHAR(100) DEFAULT CURRENT_USER")
-    private String naviUser ;
+    private String naviUser;
+
+
+    public Category(String name, String slug) {
+        this.name = name;
+        this.slug = slug;
+    }
+
+    public Category(Long categoryId, String name, String slug) {
+        this.categoryId = categoryId;
+        this.name = name;
+        this.slug = slug;
+    }
 }

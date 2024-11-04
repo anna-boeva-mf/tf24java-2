@@ -50,7 +50,7 @@ public class CategoryApiClientIntegrationTest {
 
     @Test
     void testGetAllCategories() {
-        Category category1 = new Category("main", "MAIN CATEGORY");
+        Category category1 = new Category("MAIN CATEGORY","main");
         List<Category> categories = List.of(category1);
         stubFor(get(urlEqualTo("/"))
                 .willReturn(aResponse()

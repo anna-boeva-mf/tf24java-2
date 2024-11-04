@@ -1,7 +1,6 @@
 package ru.tbank.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,7 +50,7 @@ public class Event {
     private LocalDateTime naviDate;
 
     @Column(name = "navi_user", length = 100, columnDefinition = "VARCHAR(100) default CURRENT_USER")
-    private String naviUser ;
+    private String naviUser;
 
     @Transient
     private List<DateRange> dates;
