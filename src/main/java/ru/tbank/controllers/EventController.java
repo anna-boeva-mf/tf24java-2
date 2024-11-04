@@ -20,32 +20,32 @@ public class EventController {
     private EventService eventService;
 
     @GetMapping
-    public ResponseEntity<List<Event>> getAllEvents() {
-        List<Event> events = eventService.getAllEvents();
-        return new ResponseEntity<>(events, HttpStatus.OK);
+    public ResponseEntity<List<EventDTO>> getAllEvents() {
+        List<EventDTO> eventsDTO = eventService.getAllEvents();
+        return new ResponseEntity<>(eventsDTO, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
-        Event event = eventService.getEventById(id);
-        if (event != null) {
-            return new ResponseEntity<>(new EventDTO(event, true), HttpStatus.OK);
+        EventDTO eventsDTO = eventService.getEventById(id);
+        if (eventsDTO != null) {
+            return new ResponseEntity<>(eventsDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping
-    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
-        Event createdEvent = eventService.createEvent(event);
-        return new ResponseEntity<>(createdEvent, HttpStatus.CREATED);
+    public ResponseEntity<EventDTO> createEvent(@RequestBody Event event) {
+        EventDTO createdEventDTO= eventService.createEvent(event);
+        return new ResponseEntity<>(createdEventDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Event> updateEvent(@PathVariable Long id, @RequestBody Event eventDetails) {
-        Event updatedEvent = eventService.updateEvent(id, eventDetails);
-        if (updatedEvent != null) {
-            return new ResponseEntity<>(updatedEvent, HttpStatus.OK);
+    public ResponseEntity<EventDTO> updateEvent(@PathVariable Long id, @RequestBody Event eventDetails) {
+        EventDTO updatedEventDTO = eventService.updateEvent(id, eventDetails);
+        if (updatedEventDTO != null) {
+            return new ResponseEntity<>(updatedEventDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

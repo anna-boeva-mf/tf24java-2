@@ -4,10 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import ru.tbank.entities.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    boolean existsByName(String name);
-
-    Category findByName(String name);
-
     boolean existsBySlug(String slug);
+
+    Category findBySlug(String slug);
 }
 

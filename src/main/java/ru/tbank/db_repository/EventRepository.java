@@ -9,9 +9,10 @@ import java.util.List;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
-
     List<Event> findAll(Specification<Event> spec);
 
     boolean existsBySlug(String slug);
+
+    Event findBySlug(String slug);
 }
 

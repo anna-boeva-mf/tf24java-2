@@ -32,16 +32,16 @@ public class LocationController {
     private LocationService locationService;
 
     @GetMapping
-    public ResponseEntity<List<Location>> getAllLocations() {
-        List<Location> locations = locationService.getAllLocations();
-        return new ResponseEntity<>(locations, HttpStatus.OK);
+    public ResponseEntity<List<LocationDTO>> getAllLocations() {
+        List<LocationDTO> locationsDTO = locationService.getAllLocations();
+        return new ResponseEntity<>(locationsDTO, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<LocationDTO> getLocationById(@PathVariable Long id) {
-        Location location = locationService.getLocationById(id);
-        if (location != null) {
-            return new ResponseEntity<>(new LocationDTO(location, false), HttpStatus.OK);
+        LocationDTO locationDTO = locationService.getLocationById(id);
+        if (locationDTO != null) {
+            return new ResponseEntity<>(locationDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -49,25 +49,25 @@ public class LocationController {
 
     @GetMapping("/events/{id}")
     public ResponseEntity<LocationDTO> getLocationWithEvents(@PathVariable Long id) {
-        Location location = locationService.getLocationWithEvents(id);
-        if (location != null) {
-            return new ResponseEntity<>(new LocationDTO(location, true), HttpStatus.OK);
+        LocationDTO locationDTO = locationService.getLocationWithEvents(id);
+        if (locationDTO != null) {
+            return new ResponseEntity<>(locationDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
     @PostMapping
-    public ResponseEntity<Location> createLocation(@RequestBody Location location) {
-        Location createdLocation = locationService.createLocation(location);
-        return new ResponseEntity<>(createdLocation, HttpStatus.CREATED);
+    public ResponseEntity<LocationDTO> createLocation(@RequestBody Location location) {
+        LocationDTO createdLocationDTO = locationService.createLocation(location);
+        return new ResponseEntity<>(createdLocationDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Location> updateLocation(@PathVariable Long id, @RequestBody Location locationDetails) {
-        Location updatedLocation = locationService.updateLocation(id, locationDetails);
-        if (updatedLocation != null) {
-            return new ResponseEntity<>(updatedLocation, HttpStatus.OK);
+    public ResponseEntity<LocationDTO> updateLocation(@PathVariable Long id, @RequestBody Location locationDetails) {
+        LocationDTO updatedLocationDTO = locationService.updateLocation(id, locationDetails);
+        if (updatedLocationDTO != null) {
+            return new ResponseEntity<>(updatedLocationDTO, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

@@ -8,11 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface LocationRepository extends JpaRepository<Location, Long> {
-
-    boolean existsByName(String name);
-
-    Location findByName(String name);
-
     @Query("SELECT l FROM Location l LEFT JOIN FETCH l.events WHERE l.locationId = :id")
     Location findByIdWithEvents(@Param("id") Long id);
 
