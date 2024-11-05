@@ -66,10 +66,10 @@ public class EventService {
             }
         } catch (DataIntegrityViolationException e) {
             log.error("Ошибка добавления нового события");
-            throw new BadRequestException(e.getMessage());
+            throw new BadRequestException("Невозможно добавить новое событие, ошибка: " + e.getMessage());
         } catch (InvalidDataAccessApiUsageException e) {
             log.error("Локация события не найдена");
-            throw new BadRequestException(e.getMessage());
+            throw new BadRequestException("Локация события не найдена, ошибка: " + e.getMessage());
         }
     }
 
