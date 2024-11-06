@@ -1,46 +1,96 @@
 package ru.tbank.service;
 
-import java.util.Collection;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import ru.tbank.repository.CategoryRepository;
+import ru.tbank.db_repository.CategoryRepository;
 import ru.tbank.entities.Category;
+import ru.tbank.exception.BadRequestException;
 
 @Slf4j
 @Service
 public class CategoryService {
-    private final CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    @Value("${spring.datasource.username}")
+    private String currentUser;
 
-    public Collection<Category> getAllCategories() {
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    public List<Category> getAllCategories() {
         log.info("Получение всех категорий");
-        return this.categoryRepository.findAll();
+        List<Category> categories = this.categoryRepository.findAll();
+        if (categories.isEmpty()) {
+            log.warn("Список категорий пуст");
+            return null;
+        } else {
+            return categories;
+        }
     }
 
-    public Category getCategoryById(int id) {
+    public Category getCategoryById(Long id) {
         log.info("Получение категории по ID");
-        return this.categoryRepository.findById(id);
+        Optional<Category> category = this.categoryRepository.findById(id);
+        if (category.isPresent()) {
+            return category.get();
+        } else {
+            log.error("Категория не найдена");
+            return null;
+        }
     }
 
-    public int createCategory(Category category) {
+    public Category createCategory(Category category) {
         log.info("Добавление новой категории");
-        int id = this.categoryRepository.genId();
-        category.setId(id);
-        return this.categoryRepository.save(id, category);
+        try {
+            if (categoryRepository.existsBySlug(category.getSlug())) {
+                log.warn("Категория уже существует");
+                return categoryRepository.findBySlug(category.getSlug());
+            } else {
+                category.setNaviDate(LocalDateTime.now());
+                category.setNaviUser(currentUser);
+                return categoryRepository.save(category);
+            }
+        } catch (DataIntegrityViolationException e) {
+            log.error("Ошибка добавления новой категории");
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public void updateCategory(int id, Category category) {
+    public Category updateCategory(Long id, Category categoryDetails) {
         log.info("Обновление категории");
-        category.setId(id);
-        this.categoryRepository.save(id, category);
+        try {
+            Optional<Category> optionalCategory = categoryRepository.findById(id);
+            if (optionalCategory.isPresent()) {
+                Category existingCategory = optionalCategory.get();
+                existingCategory.setNaviDate(LocalDateTime.now());
+                existingCategory.setNaviUser(currentUser);
+                existingCategory.setSlug(categoryDetails.getSlug());
+                existingCategory.setName(categoryDetails.getName());
+                return categoryRepository.save(existingCategory);
+            } else {
+                log.error("Категория не найдена");
+                return null;
+            }
+        } catch (DataIntegrityViolationException e) {
+            log.error("Ошибка обновления категории");
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
-    public void deleteCategory(int id) {
+    public boolean deleteCategory(Long id) {
         log.info("Удаление категории");
-        this.categoryRepository.delete(id);
+        if (categoryRepository.existsById(id)) {
+            categoryRepository.deleteById(id);
+            return true;
+        } else {
+            log.error("Событие не найдено");
+            return false;
+        }
     }
 }
