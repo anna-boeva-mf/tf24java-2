@@ -51,5 +51,11 @@ public class Location {
         this.name = name;
         this.slug = slug;
     }
+
+    public Location(Long locationId, String name, String slug) {
+        this.locationId = locationId;
+        this.name = name;
+        this.slug = slug;
+    }
 }
 
