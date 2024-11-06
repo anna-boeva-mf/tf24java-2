@@ -1,4 +1,4 @@
-package ru.tbank.clients;
+package ru.tbank.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

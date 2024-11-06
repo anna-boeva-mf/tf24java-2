@@ -28,30 +28,26 @@ public class CategoryController {
 
     @GetMapping
     public Collection<Category> getAllCategories() {
-        return this.categoryService.getAllCategories();
+        return categoryService.getAllCategories();
     }
 
-    @LogExecutionTime
     @GetMapping({"/{id}"})
     public Category getCategoryById(@PathVariable int id) {
-        return this.categoryService.getCategoryById(id);
+        return categoryService.getCategoryById(id);
     }
 
-    @LogExecutionTime
     @PostMapping
     public void createCategory(@RequestBody Category category) {
-        this.categoryService.createCategory(category);
+        categoryService.createCategory(category);
     }
 
-    @LogExecutionTime
     @PutMapping({"/{id}"})
     public void updateCategory(@PathVariable int id, @RequestBody Category category) {
-        this.categoryService.updateCategory(id, category);
+        categoryService.updateCategory(id, category);
     }
 
-    @LogExecutionTime
     @DeleteMapping({"/{id}"})
     public void deleteCategory(@PathVariable int id) {
-        this.categoryService.deleteCategory(id);
+        categoryService.deleteCategory(id);
     }
 }
