@@ -125,6 +125,4 @@ public class EventService {
             return eventsDTO;
         }
     }
-
 }
-

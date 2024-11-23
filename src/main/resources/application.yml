@@ -1,11 +1,9 @@
 server:
   port: 8081
-categories:
-  url: https://kudago.com/public-api/v1.2/place-categories/
-locations:
-  url: https://kudago.com/public-api/v1.4/locations/
-events:
-  url: https://kudago.com/public-api/v1.2/events
+client:
+  categoriesUrl: https://kudago.com/public-api/v1.2/place-categories/
+  locationsUrl: https://kudago.com/public-api/v1.4/locations/
+  eventsUrl: https://kudago.com/public-api/v1.2/events
 
 spring:
   datasource:

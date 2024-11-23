@@ -1,6 +1,6 @@
 package ru.tbank.controllers;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tbank.dto.LocationDTO;
 import ru.tbank.entities.Location;
+import ru.tbank.exception.EntityNotFoundException;
 import ru.tbank.logging.LogExecutionTime;
 import ru.tbank.service.LocationService;
 import org.springframework.http.HttpStatus;
@@ -24,11 +25,11 @@ import java.util.List;
 @RestController
 @RequestMapping({"/api/v1/locations"})
 @LogExecutionTime
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class LocationController {
 
     @Autowired
-    private LocationService locationService;
+    private final LocationService locationService;
 
     @GetMapping
     public ResponseEntity<List<LocationDTO>> getAllLocations() {
@@ -42,7 +43,7 @@ public class LocationController {
         if (locationDTO != null) {
             return new ResponseEntity<>(locationDTO, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Event not found with id: " + id);
         }
     }
 
@@ -52,7 +53,7 @@ public class LocationController {
         if (locationDTO != null) {
             return new ResponseEntity<>(locationDTO, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Event not found with id: " + id);
         }
     }
 
@@ -68,7 +69,7 @@ public class LocationController {
         if (updatedLocationDTO != null) {
             return new ResponseEntity<>(updatedLocationDTO, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Event not found with id: " + id);
         }
     }
 
@@ -78,7 +79,7 @@ public class LocationController {
         if (isDeleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Event not found with id: " + id);
         }
     }
 }

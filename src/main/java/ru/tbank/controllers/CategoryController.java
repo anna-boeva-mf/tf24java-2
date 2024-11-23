@@ -2,7 +2,7 @@ package ru.tbank.controllers;
 
 import java.util.List;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tbank.entities.Category;
+import ru.tbank.exception.EntityNotFoundException;
 import ru.tbank.logging.LogExecutionTime;
 import ru.tbank.service.CategoryService;
 
@@ -23,7 +24,7 @@ import ru.tbank.service.CategoryService;
 @RestController
 @RequestMapping({"/api/v1/places/categories"})
 @LogExecutionTime
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CategoryController {
     @Autowired
     private final CategoryService categoryService;
@@ -40,7 +41,7 @@ public class CategoryController {
         if (category != null) {
             return new ResponseEntity<>(category, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Category not found with id: " + id);
         }
     }
 
@@ -56,7 +57,7 @@ public class CategoryController {
         if (updatedCategory != null) {
             return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Category not found with id: " + id);
         }
     }
 
@@ -66,7 +67,7 @@ public class CategoryController {
         if (isDeleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Category not found with id: " + id);
         }
     }
 }

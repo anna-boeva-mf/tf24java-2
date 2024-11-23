@@ -74,7 +74,7 @@ public class DataInitializer implements ApplicationRunner {
         // Добавлена загрузка нескольких реальных событий, для полноты исходного состояния хранилища
         log.info("Инициализация списка событий");
         try {
-            Event[] events = this.eventApiClient.initializeData();
+            List <Event> events = this.eventApiClient.initializeData();
             for (Event event : events) {
                 if (eventRepository.existsBySlug(event.getSlug())) {
                     log.warn("Event already exists");

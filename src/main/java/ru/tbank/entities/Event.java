@@ -49,7 +49,7 @@ public class Event {
     @Column(name = "navi_date", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime naviDate;
 
-    @Column(name = "navi_user", length = 100, columnDefinition = "VARCHAR(100) default CURRENT_USER")
+    @Column(name = "navi_user", columnDefinition = "VARCHAR(100) default CURRENT_USER")
     private String naviUser;
 
     @Transient

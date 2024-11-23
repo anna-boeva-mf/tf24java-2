@@ -1,16 +1,17 @@
 package ru.tbank.db_repository;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.StringUtils;
 import ru.tbank.entities.Event;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.Predicate;
 import java.time.LocalDateTime;
 
 public class EventSpecification {
 
     public static Specification<Event> findByName(String name) {
         return (root, query, criteriaBuilder) -> {
-            if (name == null || name.isEmpty()) {
+            if (!StringUtils.hasText(name)) {
                 return criteriaBuilder.conjunction();
             }
             return criteriaBuilder.like(root.get("name"), "%" + name + "%");

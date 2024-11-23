@@ -1,23 +1,38 @@
 package ru.tbank.controllers;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.tbank.dto.EventDTO;
 import ru.tbank.entities.Event;
+import ru.tbank.exception.EntityNotFoundException;
+import ru.tbank.logging.LogExecutionTime;
 import ru.tbank.service.EventService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/events")
+@LogExecutionTime
+@RequiredArgsConstructor
 public class EventController {
 
     @Autowired
-    private EventService eventService;
+    private final EventService eventService;
 
     @GetMapping
     public ResponseEntity<List<EventDTO>> getAllEvents() {
@@ -31,7 +46,7 @@ public class EventController {
         if (eventsDTO != null) {
             return new ResponseEntity<>(eventsDTO, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Event not found with id: " + id);
         }
     }
 
@@ -47,7 +62,7 @@ public class EventController {
         if (updatedEventDTO != null) {
             return new ResponseEntity<>(updatedEventDTO, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Event not found with id: " + id);
         }
     }
 
@@ -57,7 +72,7 @@ public class EventController {
         if (isDeleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("Event not found with id: " + id);
         }
     }
 
