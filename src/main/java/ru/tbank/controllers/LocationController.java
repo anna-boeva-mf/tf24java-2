@@ -43,7 +43,7 @@ public class LocationController {
         if (locationDTO != null) {
             return new ResponseEntity<>(locationDTO, HttpStatus.OK);
         } else {
-            throw new EntityNotFoundException("Event not found with id: " + id);
+            throw new EntityNotFoundException("Location not found with id: " + id);
         }
     }
 
@@ -53,7 +53,7 @@ public class LocationController {
         if (locationDTO != null) {
             return new ResponseEntity<>(locationDTO, HttpStatus.OK);
         } else {
-            throw new EntityNotFoundException("Event not found with id: " + id);
+            throw new EntityNotFoundException("Location not found with id: " + id);
         }
     }
 
@@ -69,7 +69,7 @@ public class LocationController {
         if (updatedLocationDTO != null) {
             return new ResponseEntity<>(updatedLocationDTO, HttpStatus.OK);
         } else {
-            throw new EntityNotFoundException("Event not found with id: " + id);
+            throw new EntityNotFoundException("Location not found with id: " + id);
         }
     }
 
@@ -79,7 +79,7 @@ public class LocationController {
         if (isDeleted) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
-            throw new EntityNotFoundException("Event not found with id: " + id);
+            throw new EntityNotFoundException("Location not found with id: " + id);
         }
     }
 }
