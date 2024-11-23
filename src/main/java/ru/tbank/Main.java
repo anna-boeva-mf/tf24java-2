@@ -33,5 +33,20 @@ public class Main {
             return cll;
         });
         System.out.println(list);
+
+        // ДЗ-11
+        CustomLinkedList<String> list11 = new CustomLinkedList<>();
+        list11.add("apple");
+        list11.add("banana");
+        list11.add("cherry");
+
+        CustomIterator<String> iterator = list11.iterator();
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+
+        // Использование forEachRemaining
+        iterator = list11.iterator(); // Сброс итератора
+        iterator.forEachRemaining(System.out::println);
     }
 }
