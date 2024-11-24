@@ -11,6 +11,6 @@ RUN ./gradlew clean build -x test --no-daemon
 
 FROM eclipse-temurin:17-jre
 
-COPY --from=build /build/libs/*.jar KudaGoApp.jar
+COPY --from=build /app/build/libs/tf24java-2-1.0-SNAPSHOT-plain.jar /app/KudaGoApp.jar
 
-ENTRYPOINT ["java", "-jar", "KudaGoApp.jar"]
+ENTRYPOINT ["java", "-jar", "/app/KudaGoApp.jar"]
