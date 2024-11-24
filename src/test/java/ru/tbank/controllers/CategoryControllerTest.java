@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -22,6 +23,7 @@ import ru.tbank.db_repository.CategoryRepository;
 import ru.tbank.entities.Category;
 
 import org.springframework.http.MediaType;
+import ru.tbank.service.CategoryService;
 
 import java.util.List;
 
@@ -47,6 +49,9 @@ class CategoryControllerTest {
 
     @InjectMocks
     private CategoryController categoryController;
+
+    @Mock
+    private CategoryService categoryService;
 
     @Autowired
     private ObjectMapper objectMapper;

@@ -1,0 +1,45 @@
+name: CI Workflow
+
+on:
+  pull_request:
+    branches:
+      - master
+      - fj_2024_lesson_11_2 # из этой ветки создала текущую, в нее делаю MR
+  push:
+    branches:
+      - master
+      - fj_2024_lesson_11_2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build the project
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Calculate test coverage
+        run: ./gradlew jacocoTestReport
+
+      - name: Run static code analysis
+        run: ./gradlew check
+
+      - name: Push Docker image to GitHub Packages
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/my-image:${{ github.sha }} .
+          echo "${{ secrets.MY_PERSONAL_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker push ghcr.io/${{ github.repository }}/my-image:${{ github.sha }}

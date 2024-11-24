@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +25,8 @@ import org.springframework.http.MediaType;
 import ru.tbank.db_repository.LocationRepository;
 import ru.tbank.entities.Event;
 import ru.tbank.entities.Location;
+import ru.tbank.service.CategoryService;
+import ru.tbank.service.EventService;
 
 import java.util.List;
 
@@ -52,6 +55,9 @@ class EventControllerTest {
 
     @InjectMocks
     private EventController eventController;
+
+    @Mock
+    private EventService eventService;
 
     @Autowired
     private ObjectMapper objectMapper;
