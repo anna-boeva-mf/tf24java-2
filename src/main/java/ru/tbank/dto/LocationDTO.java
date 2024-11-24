@@ -29,5 +29,14 @@ public class LocationDTO {
             this.events = eventsDTO;
         }
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "id=" + locationId +
+                ", name='" + name + '\'' +
+                ", slug='" + slug + '\'' +
+                '}';
+    }
 }
 

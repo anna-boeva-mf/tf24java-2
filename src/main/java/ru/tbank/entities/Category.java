@@ -49,4 +49,13 @@ public class Category {
         this.name = name;
         this.slug = slug;
     }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + categoryId +
+                ", name='" + name + '\'' +
+                ", slug='" + slug + '\'' +
+                '}';
+    }
 }

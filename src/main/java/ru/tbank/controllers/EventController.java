@@ -19,6 +19,8 @@ import ru.tbank.dto.EventDTO;
 import ru.tbank.entities.Event;
 import ru.tbank.exception.EntityNotFoundException;
 import ru.tbank.logging.LogExecutionTime;
+import ru.tbank.patterns.LoggingObserver;
+import ru.tbank.service.CategoryService;
 import ru.tbank.service.EventService;
 
 import java.time.LocalDateTime;
@@ -28,11 +30,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/events")
 @LogExecutionTime
-@RequiredArgsConstructor
 public class EventController {
 
     @Autowired
     private final EventService eventService;
+
+    @Autowired
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
+        eventService.registerObserver(new LoggingObserver());
+    }
 
     @GetMapping
     public ResponseEntity<List<EventDTO>> getAllEvents() {

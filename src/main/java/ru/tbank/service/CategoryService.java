@@ -1,6 +1,7 @@
 package ru.tbank.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,16 +13,41 @@ import org.springframework.stereotype.Service;
 import ru.tbank.db_repository.CategoryRepository;
 import ru.tbank.entities.Category;
 import ru.tbank.exception.BadRequestException;
+import ru.tbank.patterns.Observer;
+import ru.tbank.patterns.Subject;
 
 @Slf4j
 @Service
-public class CategoryService {
+public class CategoryService implements Subject {
 
     @Value("${spring.datasource.username}")
     private String currentUser;
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    private List<Observer> observers = new ArrayList<>();
+
+    @Override
+    public void registerObserver(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(String action, Object entity) {
+        for (Observer observer : observers) {
+            observer.update(action, entity);
+        }
+    }
+
+    public CategoryService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     public List<Category> getAllCategories() {
         log.info("Получение всех категорий");
@@ -54,7 +80,9 @@ public class CategoryService {
             } else {
                 category.setNaviDate(LocalDateTime.now());
                 category.setNaviUser(currentUser);
-                return categoryRepository.save(category);
+                Category createdCategory = categoryRepository.save(category);
+                notifyObservers("CREATE", createdCategory);
+                return createdCategory;
             }
         } catch (DataIntegrityViolationException e) {
             log.error("Ошибка добавления новой категории");
@@ -72,7 +100,9 @@ public class CategoryService {
                 existingCategory.setNaviUser(currentUser);
                 existingCategory.setSlug(categoryDetails.getSlug());
                 existingCategory.setName(categoryDetails.getName());
-                return categoryRepository.save(existingCategory);
+                Category updatedCategory = categoryRepository.save(existingCategory);
+                notifyObservers("UPDATE", updatedCategory);
+                return updatedCategory;
             } else {
                 log.error("Категория не найдена");
                 return null;
@@ -86,7 +116,9 @@ public class CategoryService {
     public boolean deleteCategory(Long id) {
         log.info("Удаление категории");
         if (categoryRepository.existsById(id)) {
+            Category categoryToDelete = categoryRepository.findById(id).orElse(null);
             categoryRepository.deleteById(id);
+            notifyObservers("DELETE", categoryToDelete);
             return true;
         } else {
             log.error("Событие не найдено");

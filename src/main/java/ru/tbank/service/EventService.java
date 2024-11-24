@@ -4,30 +4,58 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
+import ru.tbank.db_repository.CategoryRepository;
 import ru.tbank.db_repository.EventRepository;
 import ru.tbank.db_repository.EventSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.EventDTO;
+import ru.tbank.entities.Category;
 import ru.tbank.entities.Event;
 import ru.tbank.exception.BadRequestException;
+import ru.tbank.patterns.Observer;
+import ru.tbank.patterns.Subject;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class EventService {
+public class EventService implements Subject {
 
     @Value("${spring.datasource.username}")
     private String currentUser;
 
     @Autowired
     private EventRepository eventRepository;
+    
+    private List<Observer> observers = new ArrayList<>();
 
+    @Override
+    public void registerObserver(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(String action, Object entity) {
+        for (Observer observer : observers) {
+            observer.update(action, entity);
+        }
+    }
+
+    public EventService(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
+    
     public List<EventDTO> getAllEvents() {
         log.info("Получение всех событий");
         List<Event> events = eventRepository.findAll();
@@ -62,7 +90,9 @@ public class EventService {
             } else {
                 event.setNaviDate(LocalDateTime.now());
                 event.setNaviUser(currentUser);
-                return new EventDTO(eventRepository.save(event), true);
+                EventDTO createdEvent = new EventDTO(eventRepository.save(event), true);
+                notifyObservers("CREATE", createdEvent);
+                return createdEvent;
             }
         } catch (DataIntegrityViolationException e) {
             log.error("Ошибка добавления нового события");
@@ -87,7 +117,9 @@ public class EventService {
                 existingEvent.setLocation(eventDetails.getLocation());
                 existingEvent.setNaviDate(eventDetails.getNaviDate());
                 existingEvent.setNaviUser(eventDetails.getNaviUser());
-                return new EventDTO(eventRepository.save(existingEvent), true);
+                EventDTO updatedEvent = new EventDTO(eventRepository.save(existingEvent), true);
+                notifyObservers("UPDATE", updatedEvent);
+                return updatedEvent;
             } else {
                 log.error("Событие не найдено");
                 return null;
@@ -101,7 +133,9 @@ public class EventService {
     public boolean deleteEvent(Long id) {
         log.info("Удаление события");
         if (eventRepository.existsById(id)) {
+            Event eventToDelete = eventRepository.findById(id).orElse(null);
             eventRepository.deleteById(id);
+            notifyObservers("DELETE", eventToDelete);
             return true;
         } else {
             log.error("Событие не найдено");

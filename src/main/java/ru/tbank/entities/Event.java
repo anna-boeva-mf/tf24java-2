@@ -55,4 +55,3 @@ public class Event {
     @Transient
     private List<DateRange> dates;
 }
-
