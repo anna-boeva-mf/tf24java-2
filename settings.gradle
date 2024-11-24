@@ -1,2 +1,2 @@
 rootProject.name = 'tf24java-2'
-include 'libs/logging-starter-1.0'
+include 'libs'
