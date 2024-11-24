@@ -1,6 +1,7 @@
 package ru.tbank;
 
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public class CustomLinkedList<T> {
     private Node<T> head;
@@ -84,6 +85,36 @@ public class CustomLinkedList<T> {
     public void addAll(Collection<? extends T> collection) {
         for (T element : collection) {
             add(element);
+        }
+    }
+
+    public CustomIterator<T> iterator() {
+        return new CustomLinkedListIterator();
+    }
+
+    private class CustomLinkedListIterator implements CustomIterator<T> {
+        private Node<T> current = head;
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new IllegalStateException("No more elements to iterate.");
+            }
+            T element = current.element;
+            current = current.next;
+            return element;
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super T> action) {
+            while (hasNext()) {
+                action.accept(next());
+            }
         }
     }
 
