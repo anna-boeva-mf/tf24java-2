@@ -92,4 +92,3 @@ public class EventController {
         return eventService.searchEvents(name, locationId, fromDate, toDate);
     }
 }
-
