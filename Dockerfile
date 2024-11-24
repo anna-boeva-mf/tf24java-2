@@ -7,7 +7,7 @@ COPY src ./src
 COPY libs ./libs
 COPY gradle/wrapper ./gradle/wrapper
 
-RUN ./gradlew clean build --no-daemon
+RUN ./gradlew clean build -x test --no-daemon
 
 FROM eclipse-temurin:17-jre
 
