@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY build.gradle settings.gradle gradlew ./
 COPY src ./src
+COPY libs ./libs
 COPY gradle/wrapper ./gradle/wrapper
 
 RUN ./gradlew clean build --no-daemon
