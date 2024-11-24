@@ -1,7 +1,6 @@
 package ru.tbank.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import ru.tbank.entities.Location;
@@ -29,5 +28,13 @@ public class LocationDTO {
             this.events = eventsDTO;
         }
     }
-}
 
+    @Override
+    public String toString() {
+        return "Location{" +
+                "id=" + locationId +
+                ", name='" + name + '\'' +
+                ", slug='" + slug + '\'' +
+                '}';
+    }
+}

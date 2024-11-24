@@ -30,5 +30,13 @@ public class EventDTO {
             this.locationId = event.getLocation().getLocationId();
         }
     }
-}
 
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id=" + eventId +
+                ", name='" + name + '\'' +
+                ", slug='" + slug + '\'' +
+                '}';
+    }
+}

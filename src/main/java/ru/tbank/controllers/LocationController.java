@@ -1,6 +1,5 @@
 package ru.tbank.controllers;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +17,7 @@ import ru.tbank.logging.LogExecutionTime;
 import ru.tbank.service.LocationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import ru.tbank.patterns.LoggingObserver;
 
 import java.util.List;
 
@@ -25,11 +25,16 @@ import java.util.List;
 @RestController
 @RequestMapping({"/api/v1/locations"})
 @LogExecutionTime
-@RequiredArgsConstructor
 public class LocationController {
 
     @Autowired
     private final LocationService locationService;
+
+    @Autowired
+    public LocationController(LocationService locationService) {
+        this.locationService = locationService;
+        locationService.registerObserver(new LoggingObserver());
+    }
 
     @GetMapping
     public ResponseEntity<List<LocationDTO>> getAllLocations() {

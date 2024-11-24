@@ -10,21 +10,49 @@ import ru.tbank.db_repository.LocationRepository;
 import ru.tbank.dto.LocationDTO;
 import ru.tbank.entities.Location;
 import ru.tbank.exception.BadRequestException;
+import ru.tbank.patterns.Observer;
+import ru.tbank.patterns.HistoryManager;
+import ru.tbank.patterns.Subject;
+import ru.tbank.patterns.LocationSnapshot;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+
 
 @Slf4j
 @Service
-public class LocationService {
+public class LocationService implements Subject {
 
     @Value("${spring.datasource.username}")
     private String currentUser;
 
     @Autowired
     private LocationRepository locationRepository;
+
+    @Autowired
+    private HistoryManager historyManager;
+
+    private List<Observer> observers = new ArrayList<>();
+
+    @Override
+    public void registerObserver(Observer o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(String action, Object entity) {
+        for (Observer observer : observers) {
+            observer.update(action, entity);
+        }
+    }
 
     public LocationService(LocationRepository locationRepository) {
         this.locationRepository = locationRepository;
@@ -76,7 +104,10 @@ public class LocationService {
             } else {
                 location.setNaviDate(LocalDateTime.now());
                 location.setNaviUser(currentUser);
-                return new LocationDTO(locationRepository.save(location), false);
+                LocationDTO createdLocation = new LocationDTO(locationRepository.save(location), false);
+                notifyObservers("CREATE", createdLocation);
+                historyManager.addLocationSnapshot(new LocationSnapshot(createdLocation.getLocationId(), createdLocation.getName(), createdLocation.getSlug()));
+                return createdLocation;
             }
         } catch (DataIntegrityViolationException e) {
             log.error("Ошибка добавления новой локации");
@@ -96,8 +127,10 @@ public class LocationService {
                 existingLocation.setNaviUser(currentUser);
                 existingLocation.setSlug(locationDetails.getSlug());
                 existingLocation.setName(locationDetails.getName());
-                System.out.println(locationDetails.getEvents());
-                return new LocationDTO(locationRepository.save(existingLocation), false);
+                LocationDTO updatedLocation = new LocationDTO(locationRepository.save(existingLocation), false);
+                notifyObservers("UPDATE", updatedLocation);
+                historyManager.addLocationSnapshot(new LocationSnapshot(updatedLocation.getLocationId(), updatedLocation.getName(), updatedLocation.getSlug()));
+                return updatedLocation;
             }
         } catch (DataIntegrityViolationException e) {
             log.error("Ошибка обновления локации");
@@ -108,7 +141,10 @@ public class LocationService {
     public boolean deleteLocation(Long id) {
         log.info("Удаление локации");
         if (locationRepository.existsById(id)) {
+            Location locationToDelete = locationRepository.findById(id).orElse(null);
             locationRepository.deleteById(id);
+            notifyObservers("DELETE", locationToDelete);
+            historyManager.addLocationSnapshot(new LocationSnapshot(locationToDelete.getLocationId(), locationToDelete.getName(), locationToDelete.getSlug()));
             return true;
         } else {
             log.error("Локация не найдена");
