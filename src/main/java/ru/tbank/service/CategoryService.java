@@ -13,8 +13,10 @@ import org.springframework.stereotype.Service;
 import ru.tbank.db_repository.CategoryRepository;
 import ru.tbank.entities.Category;
 import ru.tbank.exception.BadRequestException;
+import ru.tbank.patterns.CategorySnapshot;
 import ru.tbank.patterns.Observer;
 import ru.tbank.patterns.Subject;
+import ru.tbank.patterns.HistoryManager;
 
 @Slf4j
 @Service
@@ -25,6 +27,9 @@ public class CategoryService implements Subject {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private HistoryManager historyManager;
 
     private List<Observer> observers = new ArrayList<>();
 
@@ -82,6 +87,7 @@ public class CategoryService implements Subject {
                 category.setNaviUser(currentUser);
                 Category createdCategory = categoryRepository.save(category);
                 notifyObservers("CREATE", createdCategory);
+                historyManager.addCategorySnapshot(new CategorySnapshot(createdCategory.getCategoryId(), createdCategory.getName(), createdCategory.getSlug()));
                 return createdCategory;
             }
         } catch (DataIntegrityViolationException e) {
@@ -102,6 +108,7 @@ public class CategoryService implements Subject {
                 existingCategory.setName(categoryDetails.getName());
                 Category updatedCategory = categoryRepository.save(existingCategory);
                 notifyObservers("UPDATE", updatedCategory);
+                historyManager.addCategorySnapshot(new CategorySnapshot(updatedCategory.getCategoryId(), updatedCategory.getName(), updatedCategory.getSlug()));
                 return updatedCategory;
             } else {
                 log.error("Категория не найдена");
@@ -119,6 +126,7 @@ public class CategoryService implements Subject {
             Category categoryToDelete = categoryRepository.findById(id).orElse(null);
             categoryRepository.deleteById(id);
             notifyObservers("DELETE", categoryToDelete);
+            historyManager.addCategorySnapshot(new CategorySnapshot(categoryToDelete.getCategoryId(), categoryToDelete.getName(), categoryToDelete.getSlug()));
             return true;
         } else {
             log.error("Событие не найдено");

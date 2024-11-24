@@ -4,18 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import ru.tbank.db_repository.CategoryRepository;
 import ru.tbank.db_repository.EventRepository;
 import ru.tbank.db_repository.EventSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.tbank.dto.EventDTO;
-import ru.tbank.entities.Category;
 import ru.tbank.entities.Event;
 import ru.tbank.exception.BadRequestException;
 import ru.tbank.patterns.Observer;
+import ru.tbank.patterns.HistoryManager;
 import ru.tbank.patterns.Subject;
+import ru.tbank.patterns.EventSnapshot;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +32,10 @@ public class EventService implements Subject {
 
     @Autowired
     private EventRepository eventRepository;
-    
+
+    @Autowired
+    private HistoryManager historyManager;
+
     private List<Observer> observers = new ArrayList<>();
 
     @Override
@@ -92,6 +95,7 @@ public class EventService implements Subject {
                 event.setNaviUser(currentUser);
                 EventDTO createdEvent = new EventDTO(eventRepository.save(event), true);
                 notifyObservers("CREATE", createdEvent);
+                historyManager.addEventSnapshot(new EventSnapshot(createdEvent.getEventId(), createdEvent.getName(), createdEvent.getSlug()));
                 return createdEvent;
             }
         } catch (DataIntegrityViolationException e) {
@@ -119,6 +123,7 @@ public class EventService implements Subject {
                 existingEvent.setNaviUser(eventDetails.getNaviUser());
                 EventDTO updatedEvent = new EventDTO(eventRepository.save(existingEvent), true);
                 notifyObservers("UPDATE", updatedEvent);
+                historyManager.addEventSnapshot(new EventSnapshot(updatedEvent.getEventId(), updatedEvent.getName(), updatedEvent.getSlug()));
                 return updatedEvent;
             } else {
                 log.error("Событие не найдено");
@@ -136,6 +141,7 @@ public class EventService implements Subject {
             Event eventToDelete = eventRepository.findById(id).orElse(null);
             eventRepository.deleteById(id);
             notifyObservers("DELETE", eventToDelete);
+            historyManager.addEventSnapshot(new EventSnapshot(eventToDelete.getEventId(), eventToDelete.getName(), eventToDelete.getSlug()));
             return true;
         } else {
             log.error("Событие не найдено");

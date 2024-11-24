@@ -11,7 +11,9 @@ import ru.tbank.dto.LocationDTO;
 import ru.tbank.entities.Location;
 import ru.tbank.exception.BadRequestException;
 import ru.tbank.patterns.Observer;
+import ru.tbank.patterns.HistoryManager;
 import ru.tbank.patterns.Subject;
+import ru.tbank.patterns.LocationSnapshot;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +31,9 @@ public class LocationService implements Subject {
 
     @Autowired
     private LocationRepository locationRepository;
+
+    @Autowired
+    private HistoryManager historyManager;
 
     private List<Observer> observers = new ArrayList<>();
 
@@ -101,6 +106,7 @@ public class LocationService implements Subject {
                 location.setNaviUser(currentUser);
                 LocationDTO createdLocation = new LocationDTO(locationRepository.save(location), false);
                 notifyObservers("CREATE", createdLocation);
+                historyManager.addLocationSnapshot(new LocationSnapshot(createdLocation.getLocationId(), createdLocation.getName(), createdLocation.getSlug()));
                 return createdLocation;
             }
         } catch (DataIntegrityViolationException e) {
@@ -123,6 +129,7 @@ public class LocationService implements Subject {
                 existingLocation.setName(locationDetails.getName());
                 LocationDTO updatedLocation = new LocationDTO(locationRepository.save(existingLocation), false);
                 notifyObservers("UPDATE", updatedLocation);
+                historyManager.addLocationSnapshot(new LocationSnapshot(updatedLocation.getLocationId(), updatedLocation.getName(), updatedLocation.getSlug()));
                 return updatedLocation;
             }
         } catch (DataIntegrityViolationException e) {
@@ -137,6 +144,7 @@ public class LocationService implements Subject {
             Location locationToDelete = locationRepository.findById(id).orElse(null);
             locationRepository.deleteById(id);
             notifyObservers("DELETE", locationToDelete);
+            historyManager.addLocationSnapshot(new LocationSnapshot(locationToDelete.getLocationId(), locationToDelete.getName(), locationToDelete.getSlug()));
             return true;
         } else {
             log.error("Локация не найдена");

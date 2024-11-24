@@ -1,6 +1,5 @@
 package ru.tbank.controllers;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,7 +19,6 @@ import ru.tbank.entities.Event;
 import ru.tbank.exception.EntityNotFoundException;
 import ru.tbank.logging.LogExecutionTime;
 import ru.tbank.patterns.LoggingObserver;
-import ru.tbank.service.CategoryService;
 import ru.tbank.service.EventService;
 
 import java.time.LocalDateTime;
