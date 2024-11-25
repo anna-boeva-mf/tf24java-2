@@ -17,8 +17,20 @@ public class ErrorHandlingControllerAdvice {
     }
 
     @ExceptionHandler(value = EntityNotFoundException.class)
-    public ResponseEntity<String> handleCategoryNotFoundException(EntityNotFoundException ex) {
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
         log.error(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
+        log.error("Ошибка: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleBadRequestException(BadRequestException ex) {
+        log.error("Ошибка: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

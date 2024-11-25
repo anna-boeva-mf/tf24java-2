@@ -1,0 +1,26 @@
+server:
+  port: 8081
+client:
+  categoriesUrl: https://kudago.com/public-api/v1.2/place-categories/
+  locationsUrl: https://kudago.com/public-api/v1.4/locations/
+  eventsUrl: https://kudago.com/public-api/v1.2/events
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kudago
+    driver-class-name: org.postgresql.Driver
+    username: pguser
+    password: pgpwd
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  liquibase:
+    change-log: classpath:db_changelog.xml
+
+logging.level.org.hibernate:
+  SQL: WARN
+  type.descriptor.sql.BasicBinder: WARN
