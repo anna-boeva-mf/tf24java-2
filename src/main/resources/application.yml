@@ -20,7 +20,11 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   liquibase:
     change-log: classpath:db_changelog.xml
+  security:
+    jwt:
+      private-key: thisiskeysdfgDFSDHJKJHGHJKLghjklffffffffffffffffffffffffffffffffffffffffjhgfhjkjhgfhjkjhgfhjk
 
 logging.level.org.hibernate:
   SQL: WARN
   type.descriptor.sql.BasicBinder: WARN
+
