@@ -82,4 +82,45 @@
         </sql>
     </changeSet>
 
+    <changeSet id="4" author="KudagoApplication">
+        <sql>
+            CREATE SCHEMA IF NOT EXISTS security;
+        </sql>
+    </changeSet>
+
+    <changeSet id="5" author="KudagoApplication">
+        <createTable tableName="users" schemaName="security">
+            <column name="user_id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="user_name" type="TEXT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="TEXT"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="6" author="KudagoApplication">
+        <createTable tableName="roles" schemaName="security">
+            <column name="role_id" type="BIGSERIAL">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="TEXT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="7" author="KudagoApplication">
+        <createTable tableName="user_roles" schemaName="security">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_user_roles_users"
+                             references="security.users(user_id)"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_user_roles_users1"
+                             references="security.roles(role_id)"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

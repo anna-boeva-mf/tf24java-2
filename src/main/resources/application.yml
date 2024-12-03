@@ -24,3 +24,6 @@ spring:
 logging.level.org.hibernate:
   SQL: WARN
   type.descriptor.sql.BasicBinder: WARN
+
+jwt:
+  secret: MY_JWT_SECRET

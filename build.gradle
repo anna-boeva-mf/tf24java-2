@@ -27,6 +27,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-validation:3.3.4'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
 
     implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.24.0'
     compileOnly 'org.projectlombok:lombok:1.18.24'
@@ -50,6 +52,10 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     implementation 'org.liquibase:liquibase-core'
     runtimeOnly 'org.liquibase.ext:liquibase-hibernate5:4.20.0'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
 }
 jacoco {
     toolVersion = "0.8.7"
