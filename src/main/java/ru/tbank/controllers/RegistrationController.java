@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import ru.tbank.dto.UserRegistrationDTO;
+import ru.tbank.dto.UserRegistrationDto;
 import ru.tbank.entities.User;
 import ru.tbank.exception.BadRequestException;
 import ru.tbank.exception.EntityNotFoundException;
@@ -30,10 +30,10 @@ public class RegistrationController {
     }
 
     @PostMapping
-    public ResponseEntity<User> register(@RequestBody UserRegistrationDTO userRegistrationDTO) {
+    public ResponseEntity<User> register(@RequestBody UserRegistrationDto userRegistrationDto) {
         User user = new User();
-        user.setUsername(userRegistrationDTO.getUsername());
-        user.setPassword(userRegistrationDTO.getPassword());
+        user.setUsername(userRegistrationDto.getUsername());
+        user.setPassword(userRegistrationDto.getPassword());
         List<String> userRoles = new ArrayList<>();
         userRoles.add("USER");
 

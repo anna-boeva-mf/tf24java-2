@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class UserRegistrationDTO {
+public class UserRegistrationDto {
     private String username;
     private String password;
     private List<String> roleNames;
