@@ -4,6 +4,8 @@ client:
   categoriesUrl: https://kudago.com/public-api/v1.2/place-categories/
   locationsUrl: https://kudago.com/public-api/v1.4/locations/
   eventsUrl: https://kudago.com/public-api/v1.2/events
+thread:
+  poolSize: 3
 
 spring:
   datasource:
@@ -24,3 +26,6 @@ spring:
 logging.level.org.hibernate:
   SQL: WARN
   type.descriptor.sql.BasicBinder: WARN
+
+initialization:
+  interval: PT1H  # каждый час
