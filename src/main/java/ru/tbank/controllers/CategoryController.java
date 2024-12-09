@@ -3,6 +3,7 @@ package ru.tbank.controllers;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,12 @@ public class CategoryController {
 
     @GetMapping({"/{id}"})
     public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+        final String entity_class = Category.class.getName();
+        MDC.put("entity_class", entity_class);
+        final String category_id = String.valueOf(id);
+        MDC.put("category_id", category_id);
         Category category = categoryService.getCategoryById(id);
+        MDC.clear();
         if (category != null) {
             return new ResponseEntity<>(category, HttpStatus.OK);
         } else {

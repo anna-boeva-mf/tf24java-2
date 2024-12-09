@@ -24,3 +24,16 @@ spring:
 logging.level.org.hibernate:
   SQL: WARN
   type.descriptor.sql.BasicBinder: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    export:
+      simple:
+        enabled: true
+    web:
+      server:
+        auto-time-requests: true

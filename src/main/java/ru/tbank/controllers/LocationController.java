@@ -1,6 +1,7 @@
 package ru.tbank.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +45,12 @@ public class LocationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<LocationDTO> getLocationById(@PathVariable Long id) {
+        final String entity_class = Location.class.getName();
+        MDC.put("entity_class", entity_class);
+        final String location_id = String.valueOf(id);
+        MDC.put("location_id", location_id);
         LocationDTO locationDTO = locationService.getLocationById(id);
+        MDC.clear();
         if (locationDTO != null) {
             return new ResponseEntity<>(locationDTO, HttpStatus.OK);
         } else {
