@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.tbank.entities.Category;
 import ru.tbank.logging.LogExecutionTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Component
@@ -18,10 +21,10 @@ public class CategoryApiClient {
     }
 
     @LogExecutionTime
-    public Category[] initializeData() {
+    public List<Category> initializeData() {
         log.info("Загрузка категорий с ресурса kudago.com");
         String categoriesUrl = clientProperties.getCategoriesUrl();
-        Category[] categories = this.restTemplate.getForObject(categoriesUrl, Category[].class);
-        return categories;
+        return Stream.of(this.restTemplate.getForObject(categoriesUrl, Category[].class))
+                .collect(Collectors.toList());
     }
 }

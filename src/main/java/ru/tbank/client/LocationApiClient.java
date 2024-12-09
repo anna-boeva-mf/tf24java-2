@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.tbank.entities.Location;
 import ru.tbank.logging.LogExecutionTime;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -18,10 +21,10 @@ public class LocationApiClient {
     }
 
     @LogExecutionTime
-    public Location[] initializeData() {
+    public List<Location> initializeData() {
         log.info("Загрузка локаций с ресурса kudago.com");
         String locationsUrl = clientProperties.getLocationsUrl();
-        Location[] locations = this.restTemplate.getForObject(locationsUrl, Location[].class);
-        return locations;
+        return Stream.of(this.restTemplate.getForObject(locationsUrl, Location[].class))
+                .collect(Collectors.toList());
     }
 }
