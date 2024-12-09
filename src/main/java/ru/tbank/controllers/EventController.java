@@ -1,6 +1,7 @@
 package ru.tbank.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import ru.tbank.dto.EventDTO;
 import ru.tbank.entities.Event;
 import ru.tbank.exception.EntityNotFoundException;
 import ru.tbank.logging.LogExecutionTime;
+import ru.tbank.metrics.EventRequestCount;
 import ru.tbank.patterns.LoggingObserver;
 import ru.tbank.service.EventService;
 
@@ -30,11 +32,14 @@ import java.util.List;
 @LogExecutionTime
 public class EventController {
 
+    private final EventRequestCount eventRequestCount;
+
     @Autowired
     private final EventService eventService;
 
     @Autowired
-    public EventController(EventService eventService) {
+    public EventController(EventRequestCount eventRequestCount, EventService eventService) {
+        this.eventRequestCount = eventRequestCount;
         this.eventService = eventService;
         eventService.registerObserver(new LoggingObserver());
     }
@@ -47,7 +52,13 @@ public class EventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
+        final String entity_class = Event.class.getName();
+        MDC.put("entity_class", entity_class);
+        final String event_id = String.valueOf(id);
+        MDC.put("event_id", event_id);
         EventDTO eventsDTO = eventService.getEventById(id);
+        MDC.clear();
+        eventRequestCount.incrementCounter();
         if (eventsDTO != null) {
             return new ResponseEntity<>(eventsDTO, HttpStatus.OK);
         } else {
